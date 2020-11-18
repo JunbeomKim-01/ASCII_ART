@@ -45,7 +45,7 @@ int main()
 {
 	FILE *fpBmp;															//비트맵 파일 포인터
 	FILE *fpTxt;															// 텍스트 파일 포인터
-	FILE *test;																//테스트 파일 포인터
+																//테스트 파일 포인터
 	BITMAPHEADER fileHeader;												// 비트맵 파일 헤더 구조체 변수
 	bitmapinfoheader infoHeader;											// 비트맵 정보 헤더 구조체 변수
 	char *image;															//이미지 포인터 선언
@@ -142,14 +142,20 @@ int main()
 			fprintf(fpTxt, "%c%c", c, c);
 		}
 		fprintf(fpTxt, "\n");
+		
 	}
+	char* pLine;
 	//텍스트 파일 출력
-	while (c  != EOF)
+	const int max = 1024;
+	char line[max];
+	FILE* test = fopen("asci.txt", "r");
+	while (!feof(test))
 	{
-		c = fgetc(fpTxt);
-		putchar(c);
+		pLine = fgets(line, max, test);
+		printf("%s", pLine);
 	}
 	fclose(fpTxt);
+	fclose(test);
 	free(image);
 	
 }
