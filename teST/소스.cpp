@@ -4,12 +4,12 @@
 			가변-색상 테이블
 			가변-픽셀 데이터
 */
-#define _CRT_SECURE_NO_WARNINGS
-#include <stdio.h>
+#define _CRT_SECURE_NO_WARNINGS//fopen 보안 경고로 인한 컴파일 에러 방지
+#include <stdio.h>			  // fopen, fread, fseek, fprintf, fclose 함수가 선언된 헤더 파일
 #include <Windows.h>
-#include <stdlib.h>
+#include <stdlib.h>			  // malloc, free 함수가 선언된 헤더 파일
 #include <io.h>
-#pragma pack(push, 1)
+#pragma pack(push, 1)		  // 구조체를 1바이트 크기로 정렬
 #define PIXEL_SIZE 3		  // 픽셀 한 개의 크기 3바이트(24비트)
 #define PIXEL_ALIGN 4		  // 픽셀 데이터 가로 한 줄은 4의 배수 크기로 저장됨;
 typedef struct bitmapheader
@@ -61,22 +61,26 @@ int main()
 	{
 		return 0;
 	}
-	if (fread(&fileHeader, sizeof(BITMAPHEADER), 1, fpBmp) < 1)				// 비트맵 파일 헤더 읽기. 읽기에 실패하면 파일 포인터를 닫고 프로그램 종료 , fread는 잘 읽으면 1을 반환
+	// 비트맵 파일 헤더 읽기. 읽기에 실패하면 파일 포인터를 닫고 프로그램 종료 , fread는 잘 읽으면 1을 반환
+	if (fread(&fileHeader, sizeof(BITMAPHEADER), 1, fpBmp) < 1)				
 	{
 		fclose(fpBmp);
 		return 0;
 	}
-	if (fileHeader.bttype != 'MB')										    //매직 넘버를 확인
+	//매직 넘버를 확인
+	if (fileHeader.bttype != 'MB')										    
 	{
 		fclose(fpBmp);
 		return 0;
 	}
-	if (fread(&infoHeader, sizeof(bitmapinfoheader), 1, fpBmp) < 1)			 // 비트맵 파일 헤더 읽기. 읽기에 실패하면 파일 포인터를 닫고 프로그램 종료 , fread는 잘 읽으면 1을 반환
+// 비트맵 파일 헤더 읽기. 읽기에 실패하면 파일 포인터를 닫고 프로그램 종료 , fread는 잘 읽으면 1을 반환
+	if (fread(&infoHeader, sizeof(bitmapinfoheader), 1, fpBmp) < 1)			 
 	{
 		fclose(fpBmp);
 		return 0;
 	}
-	if (infoHeader.biBitCount != 24)										//24비트맵이 아닐 경우
+//24비트맵이 아닐 경우
+	if (infoHeader.biBitCount != 24)										
 	{
 		fclose(fpBmp);
 		return 0;
@@ -84,8 +88,9 @@ int main()
 	size = infoHeader.biSizeImage;
 	width = infoHeader.biWidth;
 	height = infoHeader.biHeight;
-	
-	if (fopen("asci.txt", "r") != NULL )									//이미 파일이 있을 경우
+
+	//이미 파일이 있을 경우
+	if (fopen("asci.txt", "r") != NULL )						
 	{
 		remove("asci.txt");
 	}
@@ -96,12 +101,16 @@ int main()
 	������ = 1
 	*/
 
+	//나머지 공간
 	padding = (PIXEL_ALIGN - ((width * PIXEL_SIZE) % PIXEL_ALIGN)) % PIXEL_ALIGN;
-	if (size == 0)																	//픽셀의 크기가 0일 경우  크기를 다시 계산
+
+	//픽셀의 크기가 0일 경우  크기를 다시 계산
+	if (size == 0)																	
 	{
 		size = (width * PIXEL_SIZE + padding) * height;
-	}
-	image = (char *)malloc(size);													 //이미지를 동적할당
+	} 
+	//이미지를 동적할당
+	image = (char *)malloc(size);													
 
 	fseek(fpBmp, fileHeader.btoffBits, SEEK_SET);
 	if (fread(image, size, 1, fpBmp) < 1)
@@ -109,15 +118,17 @@ int main()
 		fclose(fpBmp);
 		return 0;
 	}
+	//텍스트 파일을 열기(만들고)
 	fclose(fpBmp);
-	fpTxt = fopen("asci.txt", "w");													//텍스트 파일을 열기(만들고)
+	fpTxt = fopen("asci.txt", "w");		
+
 	if (fpTxt == NULL)
 	{
 		free(image);
 		return 0;
 	}
 	//이미지를 ascii 텍스트화
-	for (int y = height - 1; y >= 0; y--)											//C는 0부터 시작이기 때문에 1980*720 은 0~1979 ,세로
+	for (int y = height - 1; y >= 0; y--)//C는 0부터 시작이기 때문에 1980*720 은 0~1979 ,세로
 	{
 		for (int x = 0; x < width; x++) //가로
 		{
@@ -132,7 +143,7 @@ int main()
 		}
 		fprintf(fpTxt, "\n");
 	}
-	
+	//텍스트 파일 출력
 	while (c  != EOF)
 	{
 		c = fgetc(fpTxt);
@@ -140,4 +151,5 @@ int main()
 	}
 	fclose(fpTxt);
 	free(image);
+	
 }
